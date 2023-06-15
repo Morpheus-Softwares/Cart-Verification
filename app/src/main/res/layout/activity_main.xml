@@ -102,7 +102,7 @@
         android:layout_centerInParent="true"
         android:text="Cart Verification"
         android:textColor="@color/white"
-        android:textSize="50sp" />
+        android:textSize="40sp" />
 
     <TextView
         android:id="@+id/company"

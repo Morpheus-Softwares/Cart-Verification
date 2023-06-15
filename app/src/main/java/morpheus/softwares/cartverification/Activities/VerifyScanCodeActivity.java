@@ -36,7 +36,7 @@ import morpheus.softwares.cartverification.Models.Links;
 import morpheus.softwares.cartverification.R;
 
 public class VerifyScanCodeActivity extends AppCompatActivity {
-    private final String DATABASEURL = new Links().getDATABASEURL();
+    private final String DATABASEURL = new Links().getIDSJSONURL();
 
     CodeScannerView scanView;
     TextView scannedCode;
@@ -110,7 +110,7 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
     private void fetchRecords() {
         ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
 
-        String serialNumber = String.valueOf(scannedCode.getText()).trim();
+        String idNumber = String.valueOf(scannedCode.getText()).trim();
 
         StringRequest request = new StringRequest(Request.Method.GET, DATABASEURL, response -> {
 
@@ -122,24 +122,24 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
                     JSONObject object = jsonArray.getJSONObject(i);
                     String id = object.getString("ID");
 
-                    if (id.equals(serialNumber)) {
+                    if (id.equals(idNumber)) {
                         Intent intent = new Intent(VerifyScanCodeActivity.this, VerifyActivity.class);
                         intent.putExtra("verifyID", scannedCode.getText());
                         startActivity(intent);
                         dialog.dismiss();
                         finish();
                     } else {
-                        Snackbar.make(findViewById(R.id.verifyChecked), serialNumber + " not found in cloud database...", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(R.id.verifyChecked), idNumber + " not found in cloud database...", Snackbar.LENGTH_LONG).show();
                         dialog.dismiss();
                     }
                 }
             } catch (JSONException e) {
-                Snackbar.make(findViewById(R.id.verifyChecked), "Encountered error while checking for " + serialNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.verifyChecked), "Encountered error while checking for " + idNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
                 dialog.dismiss();
                 e.printStackTrace();
             }
         }, error -> {
-            Snackbar.make(findViewById(R.id.verifyChecked), "Encountered error while checking for " + serialNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.verifyChecked), "Encountered error while checking for " + idNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
             dialog.dismiss();
             error.printStackTrace();
         });

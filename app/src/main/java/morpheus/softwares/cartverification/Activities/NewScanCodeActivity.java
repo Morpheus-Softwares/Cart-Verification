@@ -39,7 +39,7 @@ import morpheus.softwares.cartverification.Models.Links;
 import morpheus.softwares.cartverification.R;
 
 public class NewScanCodeActivity extends AppCompatActivity {
-    private final String JSONURL = new Links().getDATABASEURL();
+    private final String JSONURL = new Links().getIDSJSONURL();
 
     CodeScannerView scanView;
     private CodeScanner codeScanner;
@@ -76,12 +76,12 @@ public class NewScanCodeActivity extends AppCompatActivity {
         scanView.setOnClickListener(v -> codeScanner.startPreview());
 
         check.setOnClickListener(v -> {
-            String serialNumber = String.valueOf(scannedCode.getText()).trim();
+            String idNum = String.valueOf(scannedCode.getText()).trim();
 
-            if (serialNumber.isEmpty() || serialNumber.contains(" ") || serialNumber.equals("null") || serialNumber.contains("NPC")) {
+            if (idNum.isEmpty() || idNum.contains(" ") || idNum.equals("null")) {
                 scannedCode.setError("Please scan a code to check...");
             } else {
-                checkSerials(serialNumber);
+                checkIDs(idNum);
             }
         });
 
@@ -111,9 +111,9 @@ public class NewScanCodeActivity extends AppCompatActivity {
         fab.setOnClickListener(v -> alertDialog.show());
     }
 
-    private void checkSerials(String serialNumber) {
+    private void checkIDs(String IDNumber) {
         ProgressDialog dialog = ProgressDialog.show(this, "Cloud check", "Checking device serial number from cloud, please wait...");
-        List<String> serials = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
 
         StringRequest request = new StringRequest(Request.Method.GET, JSONURL, response -> {
 
@@ -123,16 +123,16 @@ public class NewScanCodeActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);
-                    String sn = object.getString("SN");
-                    serials.add(sn);
+                    String id = object.getString("ID");
+                    ids.add(id);
                 }
             } catch (JSONException e) {
-                Snackbar.make(findViewById(R.id.scanner), "Encountered error while scanning " + serialNumber + " from cloud database, try again...", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.scanner), "Encountered error while scanning " + IDNumber + " from cloud database, try again...", Snackbar.LENGTH_LONG).show();
                 dialog.dismiss();
                 e.printStackTrace();
             }
 
-            if (serials.contains(serialNumber)) {
+            if (ids.contains(IDNumber)) {
                 dialog.dismiss();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -140,7 +140,7 @@ public class NewScanCodeActivity extends AppCompatActivity {
                 builder.setTitle("Update?");
                 builder.setIcon(R.drawable.ic_baseline_question_mark_24);
                 builder.setInverseBackgroundForced(true);
-                builder.setMessage(serialNumber + " already exists in cloud database...\nAre you trying to update device?").setPositiveButton("Yes", (alert, which) -> {
+                builder.setMessage(IDNumber + " already exists in cloud database...\nAre you trying to update device?").setPositiveButton("Yes", (alert, which) -> {
                     startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class));
                     alert.dismiss();
                 }).setNegativeButton("No", (alert, which) -> alert.cancel());
@@ -148,13 +148,13 @@ public class NewScanCodeActivity extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 Intent intent = new Intent(NewScanCodeActivity.this, NewItemActivity.class);
-                intent.putExtra("deviceID", serialNumber);
+                intent.putExtra("productID", IDNumber);
                 startActivity(intent);
                 dialog.dismiss();
                 finish();
             }
         }, error -> {
-            Snackbar.make(findViewById(R.id.scanner), "Encountered error while checking for " + serialNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(R.id.scanner), "Encountered error while checking for " + IDNumber + " in cloud database, try again...", Snackbar.LENGTH_LONG).show();
             dialog.dismiss();
             error.printStackTrace();
         });

@@ -57,7 +57,6 @@ public class VerifyActivity extends AppCompatActivity {
                     String id = object.getString("ID").trim();
 
                     if (id.equals(code)) {
-                        idNum.setText(object.getString("ID").trim());
                         productName.setText(object.getString("ProductName").trim());
                         serialNumber.setText(object.getString("SerialNumber").trim());
                         owner.setText(object.getString("Owner").trim());

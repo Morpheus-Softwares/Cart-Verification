@@ -42,7 +42,7 @@ public class NewItemActivity extends AppCompatActivity {
         productName = findViewById(R.id.verifyProductName);
         owner = findViewById(R.id.verifyOwner);
 
-        idNum.setText(String.valueOf(getIntent().getStringExtra("deviceID")));
+        idNum.setText(String.valueOf(getIntent().getStringExtra("productID")));
 
         fab = findViewById(R.id.newSync);
         fab.setOnClickListener(view -> sync());
@@ -57,16 +57,16 @@ public class NewItemActivity extends AppCompatActivity {
         String deviceOwner = String.valueOf(owner.getText()).trim();
 
         if (id.isEmpty()) {
-            idNum.setError("Provide device ID");
+            idNum.setError("Provide product's ID");
             dialog.dismiss();
         } else if (sn.isEmpty()) {
             serialNumber.setError("Provide serial number");
             dialog.dismiss();
         } else if (name.isEmpty()) {
-            productName.setError("Select office");
+            productName.setError("Provide product's name");
             dialog.dismiss();
         } else if (deviceOwner.isEmpty()) {
-            owner.setError("Provide staff name");
+            owner.setError("Provide owner's name");
             dialog.dismiss();
         } else {
             StringRequest request = new StringRequest(Request.Method.POST, DATABASEURL, response -> {
@@ -78,7 +78,7 @@ public class NewItemActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<>();
                     params.put("action", "Products");
-                    params.put("ID", id);
+                    params.put("ID", name.substring(0, 3) + id);
                     params.put("SerialNumber", sn);
                     params.put("ProductName", name);
                     params.put("Owner", deviceOwner);
