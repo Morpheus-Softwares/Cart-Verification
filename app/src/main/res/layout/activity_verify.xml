@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/verify"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Activities.VerifyActivity">
+
+    <View
+        android:id="@+id/retrieveView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/dispatchNewItem"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/retrieveView">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/sn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="S/N"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/verifySerialNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/sn"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/edittext_border"
+                    android:hint="Device SN"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textColorHint="#9D9D9D"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/verifySerialNumber"
+                    android:layout_marginTop="50dp"
+                    android:text="Product Name"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/verifyProductName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/name"
+                    android:layout_marginTop="10dp"
+                    android:autofillHints=""
+                    android:background="@drawable/edittext_border"
+                    android:hint="Product name"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textColorHint="#9D9D9D"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/verifyProductName"
+                    android:layout_marginTop="50dp"
+                    android:text="Serial Number"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/verifyDeviceSN"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/id"
+                    android:layout_marginTop="10dp"
+                    android:autofillHints=""
+                    android:background="@drawable/edittext_border"
+                    android:hint="Device Serial Number"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textColorHint="#9D9D9D"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/verifyDeviceSN"
+                    android:layout_marginTop="50dp"
+                    android:text="Owner"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/verifyOwner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/type"
+                    android:layout_marginTop="10dp"
+                    android:autofillHints=""
+                    android:background="@drawable/edittext_border"
+                    android:hint="Owner"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textColorHint="#9D9D9D"
+                    android:textSize="24sp" />
+            </RelativeLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.cardview.widget.CardView>
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:contentDescription="TODO"
+        android:src="@drawable/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="10dp" />
+
+    <TextView
+        android:id="@+id/retrieveAppTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Verify an Item"
+        android:textColor="@color/white"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/retrieveView" />
+
+    <TextView
+        android:id="@+id/verifyID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/retrieveAppTitle"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/edittext_border"
+        android:hint="Device ID"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@id/retrieveView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
