@@ -32,6 +32,8 @@
         </activity>
         <activity android:name="morpheus.softwares.cartverification.Activities.NewItemActivity" />
         <activity android:name="morpheus.softwares.cartverification.Activities.NewScanCodeActivity" />
+        <activity android:name="morpheus.softwares.cartverification.Activities.VerifyScanCodeActivity" />
+        <activity android:name="morpheus.softwares.cartverification.Activities.VerifyActivity" />
     </application>
 
 </manifest>

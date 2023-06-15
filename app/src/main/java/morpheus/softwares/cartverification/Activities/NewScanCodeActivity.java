@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import morpheus.softwares.cartverification.Models.Links;
+import morpheus.softwares.cartverification.R;
 
 public class NewScanCodeActivity extends AppCompatActivity {
     private final String JSONURL = new Links().getDATABASEURL();
