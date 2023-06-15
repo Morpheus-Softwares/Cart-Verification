@@ -40,8 +40,8 @@ public class Database extends SQLiteOpenHelper {
     public void insertProduct(Products products) {
         SQLiteDatabase db = this.getWritableDatabase();
         String sqlInsert = "INSERT INTO " + TABLE_PRODUCTS;
-        sqlInsert += " values( null, '" + products.getProductName() + products.getSerialNumber()
-                + products.getOwner() + products.getPrice() + products.getDate() + "' )";
+        sqlInsert += " values( null, '" + products.getProductName() + "', '" + products.getSerialNumber()
+                + "', '" + products.getOwner() + "', '" + products.getPrice() + "', '" + products.getDate() + "' )";
 
         db.execSQL(sqlInsert);
         db.close();

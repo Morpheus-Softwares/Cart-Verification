@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import morpheus.softwares.cartverification.Models.Database;
 import morpheus.softwares.cartverification.Models.Links;
@@ -43,7 +44,6 @@ import morpheus.softwares.cartverification.R;
 public class NewScanCodeActivity extends AppCompatActivity {
     private final String JSONURL = new Links().getIDSJSONURL();
     Database database;
-    Products products;
 
     CodeScannerView scanView;
     TextView scannedCode;
@@ -76,17 +76,13 @@ public class NewScanCodeActivity extends AppCompatActivity {
 
         codeScanner.setDecodeCallback(result -> runOnUiThread(() -> scannedCode.setText(result.getText())));
         codeScanner.setErrorCallback(result -> runOnUiThread(() -> Snackbar.make(findViewById(R.id.scanner), "Camera initialization error...", Snackbar.LENGTH_LONG).show()));
-
         scanView.setOnClickListener(v -> codeScanner.startPreview());
 
         check.setOnClickListener(v -> {
             String idNum = String.valueOf(scannedCode.getText()).trim();
-
-            if (idNum.isEmpty() || idNum.contains(" ") || idNum.equals("null")) {
-                scannedCode.setError("Please scan a code to check...");
-            } else {
-                checkID(idNum);
-            }
+//            checkID(idNum);
+//            checkIDs(idNum);
+            checkIDNum(idNum);
         });
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(NewScanCodeActivity.this, R.style.MaterialAlertDialogRounded);
@@ -116,6 +112,40 @@ public class NewScanCodeActivity extends AppCompatActivity {
     }
 
     /**
+     * Offline mode with text
+     */
+    private void checkIDNum(String idNum) {
+        ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
+
+        idNum = String.valueOf(scannedCode.getText()).trim();
+
+        if (isInDatabase(idNum)) {
+            dialog.dismiss();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("Update");
+            builder.setIcon(R.drawable.ic_baseline_question_mark_24);
+            builder.setInverseBackgroundForced(true);
+            String finalIdNum = idNum;
+            builder.setMessage(idNum + " already exists in cloud database...\nAre you trying to " +
+                    "update device?").setPositiveButton("Yes", (alert, which) -> {
+                startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class).putExtra("productID", finalIdNum));
+                alert.dismiss();
+            }).setNegativeButton("No", (alert, which) -> alert.cancel());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        } else {
+            Intent intent = new Intent(NewScanCodeActivity.this, NewItemActivity.class);
+            intent.putExtra("productID", idNum);
+            startActivity(intent);
+            dialog.dismiss();
+            finish();
+        }
+    }
+
+
+    /**
      * Offline mode
      */
     private void checkID(String idNum) {
@@ -126,7 +156,7 @@ public class NewScanCodeActivity extends AppCompatActivity {
         ArrayList<Products> products = database.selectAllProducts();
 
         for (Products product : products) {
-            if (String.valueOf(product.getId()).equals(idNum)) {
+            if (product.getId() == Integer.parseInt(idNum)) {
                 dialog.dismiss();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -134,9 +164,10 @@ public class NewScanCodeActivity extends AppCompatActivity {
                 builder.setTitle("Update");
                 builder.setIcon(R.drawable.ic_baseline_question_mark_24);
                 builder.setInverseBackgroundForced(true);
+                String finalIdNum = idNum;
                 builder.setMessage(idNum + " already exists in cloud database...\nAre you trying to " +
                         "update device?").setPositiveButton("Yes", (alert, which) -> {
-                    startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class));
+                    startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class).putExtra("productID", finalIdNum));
                     alert.dismiss();
                 }).setNegativeButton("No", (alert, which) -> alert.cancel());
                 AlertDialog alertDialog = builder.create();
@@ -183,10 +214,12 @@ public class NewScanCodeActivity extends AppCompatActivity {
                 builder.setTitle("Update?");
                 builder.setIcon(R.drawable.ic_baseline_question_mark_24);
                 builder.setInverseBackgroundForced(true);
-                builder.setMessage(IDNumber + " already exists in cloud database...\nAre you trying to update device?").setPositiveButton("Yes", (alert, which) -> {
-                    startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class));
-                    alert.dismiss();
-                }).setNegativeButton("No", (alert, which) -> alert.cancel());
+                builder.setMessage(IDNumber + " already exists in cloud database...\nAre you " +
+                        "trying to profile a new product?").setPositiveButton("Yes",
+                        (alert, which) -> {
+                            startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class));
+                            alert.dismiss();
+                        }).setNegativeButton("No", (alert, which) -> alert.cancel());
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
             } else {
@@ -228,5 +261,26 @@ public class NewScanCodeActivity extends AppCompatActivity {
             int CAMERA_REQUEST_CODE = 101;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
         }
+    }
+
+    /**
+     * Searches if a product is in the database
+     */
+    public boolean isInDatabase(String searchValue) {
+        int i = 0;
+        try (Scanner scanner =
+                     new Scanner(getResources().openRawResource(R.raw.products))) {
+            String line;
+            while ((line = scanner.nextLine()) != null) {
+                String[] values = line.split(",");
+                // System.out.println("Found matching value in line: " + line);
+                if (values.length > 0 && values[i].equals(searchValue)) {
+                    return true;
+                }
+                i++;
+            }
+        }
+
+        return false;
     }
 }

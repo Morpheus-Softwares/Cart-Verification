@@ -54,7 +54,7 @@
                     android:layout_below="@+id/sn"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/edittext_border"
-                    android:hint="Device SN"
+                    android:hint="Device ID"
                     android:textColor="@color/cardview_dark_background"
                     android:textColorHint="#9D9D9D"
                     android:textSize="24sp" />
@@ -101,6 +101,8 @@
                     android:autofillHints=""
                     android:background="@drawable/edittext_border"
                     android:hint="Device Serial Number"
+                    android:inputType="number"
+                    android:maxLength="5"
                     android:textColor="@color/cardview_dark_background"
                     android:textColorHint="#9D9D9D"
                     android:textSize="24sp" />

@@ -55,7 +55,6 @@
                     android:layout_marginTop="10dp"
                     android:background="@drawable/edittext_border"
                     android:hint="Product ID"
-                    android:inputType="number"
                     android:textColor="@color/cardview_dark_background"
                     android:textColorHint="#9D9D9D"
                     android:textSize="24sp" />

@@ -34,6 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import morpheus.softwares.cartverification.Models.Database;
 import morpheus.softwares.cartverification.Models.Links;
@@ -75,14 +77,15 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
 
         codeScanner.setDecodeCallback(result -> runOnUiThread(() -> scannedCode.setText(result.getText())));
         codeScanner.setErrorCallback(result -> runOnUiThread(() -> Snackbar.make(findViewById(R.id.verifyChecked), "Camera initialization error...", Snackbar.LENGTH_LONG).show()));
-
         scanView.setOnClickListener(v -> codeScanner.startPreview());
 
         check.setOnClickListener(v -> {
             if (String.valueOf(scannedCode.getText()).isEmpty()) {
                 scannedCode.setError("Please scan a code to check...");
             } else {
-                fetchProductID();
+//                fetchProductID();
+//                fetchProductIDs();
+                fetchProductIDNum();
             }
         });
 
@@ -116,17 +119,53 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
     }
 
     /**
+     * Offline mode with text
+     */
+    private void fetchProductIDNum() {
+        ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
+
+        String idNumber = String.valueOf(scannedCode.getText()).trim();
+        ArrayList<String> foundItems = searchRow(idNumber);
+
+        if (isInDatabase(idNumber)) {
+            dialog.dismiss();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("Verified");
+            builder.setIcon(R.drawable.ic_baseline_check_24);
+            builder.setInverseBackgroundForced(true);
+            builder.setMessage(idNumber + " exists in cloud database..." +
+                    "\nID: " + foundItems.get(0) +
+                    "\nProduct Name: " + foundItems.get(1) +
+                    "\nSerial Number: " + foundItems.get(2) +
+                    "\nOwner: " + foundItems.get(3) +
+                    "\nPrice: " + foundItems.get(4) +
+                    "\nDate: " + foundItems.get(5)).setPositiveButton("Ok",
+                    (alert, which) -> alert.dismiss()).setNegativeButton("Cancel", (alert, which) -> alert.cancel());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        } else {
+            Toast.makeText(getApplicationContext(), idNumber + " not in cloud database!",
+                    Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(VerifyScanCodeActivity.this, NewScanCodeActivity.class));
+            dialog.dismiss();
+            finish();
+        }
+    }
+
+    /**
      * Offline mode
      */
     private void fetchProductID() {
         ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
 
-        String idNumber = String.valueOf(scannedCode.getText()).trim();
+        int idNumber = Integer.parseInt(String.valueOf(scannedCode.getText()).trim());
 
         ArrayList<Products> products = database.selectAllProducts();
 
         for (Products product : products) {
-            if (String.valueOf(product.getId()).equals(idNumber)) {
+            if (product.getId() == idNumber) {
                 dialog.dismiss();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -220,5 +259,50 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
             int CAMERA_REQUEST_CODE = 101;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
         }
+    }
+
+    /**
+     * Searches if a product is in the database
+     */
+    public boolean isInDatabase(String searchValue) {
+        int i = 0;
+        try (Scanner scanner =
+                     new Scanner(getResources().openRawResource(R.raw.products))) {
+            String line;
+            while ((line = scanner.nextLine()) != null) {
+                String[] values = line.split(",");
+                // System.out.println("Found matching value in line: " + line);
+                if (values.length > 0 && values[i].equals(searchValue)){
+                    return true;
+                }
+                i++;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Searches for a product in database and returns the records in the row
+     */
+    private ArrayList<String> searchRow(String searchValue) {
+        ArrayList<String> foundItems = new ArrayList<>();
+        int i = 0;
+
+        try (Scanner scanner =
+                     new Scanner(getResources().openRawResource(R.raw.products))) {
+            String line;
+            while ((line = scanner.nextLine()) != null) {
+                String[] values = line.split(",");
+                if (values.length > 0 && values[i].equals(searchValue)) {
+                    // Fetch the items on the found row
+                    foundItems.addAll(Arrays.asList(values));
+                }
+
+                i++;
+            }
+        }
+
+        return foundItems;
     }
 }
