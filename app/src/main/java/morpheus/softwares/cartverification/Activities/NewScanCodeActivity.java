@@ -35,21 +35,23 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import morpheus.softwares.cartverification.Models.Database;
 import morpheus.softwares.cartverification.Models.Links;
+import morpheus.softwares.cartverification.Models.Products;
 import morpheus.softwares.cartverification.R;
 
 public class NewScanCodeActivity extends AppCompatActivity {
     private final String JSONURL = new Links().getIDSJSONURL();
+    Database database;
+    Products products;
 
     CodeScannerView scanView;
-    private CodeScanner codeScanner;
-
     TextView scannedCode;
     ImageButton check, okay;
     EditText manualSN;
-
     FloatingActionButton fab;
     AlertDialog alertDialog;
+    private CodeScanner codeScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,8 @@ public class NewScanCodeActivity extends AppCompatActivity {
         scannedCode = findViewById(R.id.code);
         scanView = findViewById(R.id.scannerView);
         fab = findViewById(R.id.scanEdit);
+
+        database = new Database(NewScanCodeActivity.this);
 
         codeScanner = new CodeScanner(this, scanView);
         codeScanner.setScanMode(ScanMode.CONTINUOUS);
@@ -81,7 +85,7 @@ public class NewScanCodeActivity extends AppCompatActivity {
             if (idNum.isEmpty() || idNum.contains(" ") || idNum.equals("null")) {
                 scannedCode.setError("Please scan a code to check...");
             } else {
-                checkIDs(idNum);
+                checkID(idNum);
             }
         });
 
@@ -111,6 +115,45 @@ public class NewScanCodeActivity extends AppCompatActivity {
         fab.setOnClickListener(v -> alertDialog.show());
     }
 
+    /**
+     * Offline mode
+     */
+    private void checkID(String idNum) {
+        ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
+
+        idNum = String.valueOf(scannedCode.getText()).trim();
+
+        ArrayList<Products> products = database.selectAllProducts();
+
+        for (Products product : products) {
+            if (String.valueOf(product.getId()).equals(idNum)) {
+                dialog.dismiss();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setCancelable(false);
+                builder.setTitle("Update");
+                builder.setIcon(R.drawable.ic_baseline_question_mark_24);
+                builder.setInverseBackgroundForced(true);
+                builder.setMessage(idNum + " already exists in cloud database...\nAre you trying to " +
+                        "update device?").setPositiveButton("Yes", (alert, which) -> {
+                    startActivity(new Intent(NewScanCodeActivity.this, NewItemActivity.class));
+                    alert.dismiss();
+                }).setNegativeButton("No", (alert, which) -> alert.cancel());
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            } else {
+                Intent intent = new Intent(NewScanCodeActivity.this, NewItemActivity.class);
+                intent.putExtra("productID", idNum);
+                startActivity(intent);
+                dialog.dismiss();
+                finish();
+            }
+        }
+    }
+
+    /**
+     * Online mode
+     */
     private void checkIDs(String IDNumber) {
         ProgressDialog dialog = ProgressDialog.show(this, "Cloud check", "Checking device serial number from cloud, please wait...");
         List<String> ids = new ArrayList<>();

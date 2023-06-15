@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,11 +33,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
+import morpheus.softwares.cartverification.Models.Database;
 import morpheus.softwares.cartverification.Models.Links;
+import morpheus.softwares.cartverification.Models.Products;
 import morpheus.softwares.cartverification.R;
 
 public class VerifyScanCodeActivity extends AppCompatActivity {
     private final String DATABASEURL = new Links().getIDSJSONURL();
+    Database database;
 
     CodeScannerView scanView;
     TextView scannedCode;
@@ -58,6 +64,8 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
         scanView = findViewById(R.id.retrieveScanView);
         fab = findViewById(R.id.retrieveCheckEdit);
 
+        database = new Database(VerifyScanCodeActivity.this);
+
         codeScanner = new CodeScanner(this, scanView);
         codeScanner.setScanMode(ScanMode.CONTINUOUS);
         codeScanner.setFormats(CodeScanner.ALL_FORMATS);
@@ -74,7 +82,7 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
             if (String.valueOf(scannedCode.getText()).isEmpty()) {
                 scannedCode.setError("Please scan a code to check...");
             } else {
-                fetchRecords();
+                fetchProductID();
             }
         });
 
@@ -107,7 +115,49 @@ public class VerifyScanCodeActivity extends AppCompatActivity {
         fab.setOnClickListener(v -> alertDialog.show());
     }
 
-    private void fetchRecords() {
+    /**
+     * Offline mode
+     */
+    private void fetchProductID() {
+        ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
+
+        String idNumber = String.valueOf(scannedCode.getText()).trim();
+
+        ArrayList<Products> products = database.selectAllProducts();
+
+        for (Products product : products) {
+            if (String.valueOf(product.getId()).equals(idNumber)) {
+                dialog.dismiss();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setCancelable(false);
+                builder.setTitle("Verified");
+                builder.setIcon(R.drawable.ic_baseline_check_24);
+                builder.setInverseBackgroundForced(true);
+                builder.setMessage(idNumber + " exists in cloud database..." +
+                        "\nID: " + product.getId() +
+                        "\nProduct Name: " + product.getProductName() +
+                        "\nSerial Number: " + product.getSerialNumber() +
+                        "\nOwner: " + product.getOwner() +
+                        "\nPrice: " + product.getPrice() +
+                        "\nDate: " + product.getDate()).setPositiveButton("Ok",
+                        (alert, which) -> alert.dismiss()).setNegativeButton("Cancel", (alert, which) -> alert.cancel());
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            } else {
+                Toast.makeText(getApplicationContext(), idNumber + " not in cloud database!",
+                        Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(VerifyScanCodeActivity.this, NewScanCodeActivity.class));
+                dialog.dismiss();
+                finish();
+            }
+        }
+    }
+
+    /**
+     * Online mode
+     */
+    private void fetchIDs() {
         ProgressDialog dialog = ProgressDialog.show(this, "Cloud fetch", "Fetching device serial number from cloud, please wait...");
 
         String idNumber = String.valueOf(scannedCode.getText()).trim();
